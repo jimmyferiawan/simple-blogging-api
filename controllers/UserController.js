@@ -72,7 +72,7 @@ class UserController {
         };
 
         try {
-          let registrasi = UserService.tambahUser(UserReqBody);
+          let registrasi = await UserService.tambahUser(UserReqBody);
           // console.log(["userData => ", userData]);
           // res.status(201).send(userData);
           delete UserReqBody.passwordHash;
@@ -94,7 +94,6 @@ class UserController {
           err.error != (null || undefined)
             ? (httpStatus = 403)
             : (httpStatus = 500);
-          res.status(httpStatus).send(err);
 
           respData.status = httpStatus;
           respData.body.error = true;
