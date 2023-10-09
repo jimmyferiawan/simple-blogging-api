@@ -165,13 +165,13 @@ class UserController {
 
       let data;
       try {
-        data = UserService.findOneByUsername(username);
+        data = await UserService.findOneByUsername(username);
 
         respData.httpStatus = 200
         respData.body.error = false
         respData.body.message = "User found!"
         respData.body.data = data.data
-      } catch (error) {
+      } catch (err) {
         let httpStatusCode = (err.rc == "99" ? 500 : 404)
 
         respData.httpStatus = httpStatusCode
