@@ -56,9 +56,9 @@ class UserController {
           // console.log("res => ", res);
         } catch (err) {
           let httpStatus = 500;
-          err.error != (null || undefined)
-            ? (httpStatus = 403)
-            : (httpStatus = 500);
+          if (err.errMsg != "Some error occured, please try again later.") {
+            httpStatus = 400;
+          }
 
           respData.status = httpStatus;
           respData.body.error = true;
@@ -84,32 +84,28 @@ class UserController {
         },
       };
 
-      if (
-        idUser != null ||
-        idUser != undefined ||
-        idUser != "" ||
-        passUser != null ||
-        passUser != undefined ||
-        passUser != ""
-      ) {
+      if (idUser && passUser) {
         try {
-          let data = await UserService.findOneByUsernamePassword(idUser, passUser);
+          let data = await UserService.findOneByUsernamePassword(
+            idUser,
+            passUser
+          );
           // console.log("data => ", data)
           let token = jwt.sign(data.data, process.env.APP_SECRET, {
             expiresIn: 3000,
           });
 
-          respData.httpStatus = 200
-          respData.body.error = false,
-          respData.body.message = "Berhasil login"
-          respData.body.accessToken = token
+          respData.httpStatus = 200;
+          (respData.body.error = false),
+            (respData.body.message = "Berhasil login");
+          respData.body.accessToken = token;
         } catch (err) {
           // console.log("err => ", err)
           let httpStatus = err.rc == "99" ? 500 : 401;
 
-          respData.httpStatus = httpStatus
-          respData.body.error = true
-          respData.body.message = err.errMsg
+          respData.httpStatus = httpStatus;
+          respData.body.error = true;
+          respData.body.message = err.errMsg;
         }
       }
 
@@ -124,26 +120,26 @@ class UserController {
         httpStatus: 500,
         body: {
           error: true,
-          message: "Oops! something went wrong, please try again later"
-        }
-      }
+          message: "Oops! something went wrong, please try again later",
+        },
+      };
 
       let data;
       try {
         data = await UserService.findOneByUsername(username);
 
-        respData.httpStatus = 200
-        respData.body.error = false
-        respData.body.message = "User found!"
-        respData.body.data = data.data
+        respData.httpStatus = 200;
+        respData.body.error = false;
+        respData.body.message = "User found!";
+        respData.body.data = data.data;
       } catch (err) {
-        let httpStatusCode = (err.rc == "99" ? 500 : 404)
+        let httpStatusCode = err.rc == "99" ? 500 : 404;
 
-        respData.httpStatus = httpStatusCode
-        respData.body.message = err.errMsg
+        respData.httpStatus = httpStatusCode;
+        respData.body.message = err.errMsg;
       }
 
-      res.status(respData.httpStatus).send(respData.body)
+      res.status(respData.httpStatus).send(respData.body);
     };
   }
 
@@ -172,46 +168,51 @@ class UserController {
       let validBearerHeader = authValidationHelper.isValidAuthBearerHeader(req);
       let validRequstBody = authValidationHelper.authRequestBodyValidation(req);
 
-      if (validBearerHeader && validRequstBody) {
-        try {
-          let isUsernameExist = await UserService.findOneByUsername(username);
-          let validAuthorization = authValidationHelper.authorizationOwn(req);
-          // console.log("validAuthorization => ", validAuthorization);
-          if (validAuthorization) {
-            UserReqUpdate.username = req.body.username;
-            UserReqUpdate.firstName = req.body.firstName;
-            UserReqUpdate.middleName = req.body.middleName;
-            UserReqUpdate.lastName = req.body.lastName;
-            UserReqUpdate.mobile = req.body.mobile;
-            UserReqUpdate.email = req.body.email;
-            let data = await UserService.updateDetailByUsername(
-              username,
-              UserReqUpdate
-            );
+      if (validBearerHeader) {
+        if (validRequstBody) {
+          try {
+            let isUsernameExist = await UserService.findOneByUsername(username);
+            let validAuthorization = authValidationHelper.authorizationOwn(req);
+            // console.log("validAuthorization => ", validAuthorization);
+            if (validAuthorization) {
+              UserReqUpdate.username = req.body.username;
+              UserReqUpdate.firstName = req.body.firstName;
+              UserReqUpdate.middleName = req.body.middleName;
+              UserReqUpdate.lastName = req.body.lastName;
+              UserReqUpdate.mobile = req.body.mobile;
+              UserReqUpdate.email = req.body.email;
+              let data = await UserService.updateDetailByUsername(
+                username,
+                UserReqUpdate
+              );
 
-            data.body.data = UserReqUpdate;
-            status = data.httpStatusCode;
-            body.data = data.body.data;
-            body.error = false
-          }
-        } catch (err) {
-          // console.log("err => ", err);
-          if (err.rc) {
-            if (err.rc == "01") {
-              status = 404;
-              body.message = "Not found";
+              data.body.data = UserReqUpdate;
+              status = data.httpStatusCode;
+              body.data = data.body.data;
+              body.message = "Berhasil update data";
+              body.error = false;
             }
-            delete err.rc;
-          } else {
-            status = err.httpStatusCode;
-            body.error = err.body.error;
-            body.message = err.body.errMsg
+          } catch (err) {
+            // console.log("err => ", err);
+            if (err.rc) {
+              if (err.rc == "01") {
+                status = 404;
+                body.message = "Not found";
+              }
+              if (err.rc == "99") {
+                status = 500;
+                body.message = err.errMsg;
+              }
+              delete err.rc;
+            } else {
+              status = err.httpStatusCode;
+              body.error = err.body.error;
+              body.message = err.body.errMsg;
+            }
           }
-        }
-      } else {
-        if (!validRequstBody) {
-          status = 400;
-          body.message = "Missing mandatory field";
+        } else {
+          body.message = "missing mandatory field"
+          status = 400
         }
       }
 
@@ -219,20 +220,28 @@ class UserController {
     };
   }
 
-  updateUserPassword(UserService) {
-    const isValidAuthBearerHeader = this.isValidAuthBearerHeader;
-    const verify = this.authorize;
-    const verifyUserOwn = this.authorizationOwn;
-    const { status, body } = {
-      status: 401,
-      body: {
-        err: true,
-        errMsg: "Unauthorized request",
-      },
-    };
+  // updateUserPassword(UserService, AuthValidationHelper) {
+  //   const authValidationHelper = AuthValidationHelper;
+  //   let { status, body } = {
+  //     status: 401,
+  //     body: {
+  //       error: true,
+  //       message: "Unauthorized request",
+  //     },
+  //   };
 
-    return (req, res, next) => {};
-  }
+  //   return (req, res, next) => {};
+  // }
+
+  // updateEmailConfirmed(UserService) {
+  //   const { status, body } = {
+  //     status: 401,
+  //     body: {
+  //       err: true,
+  //       errMsg: "Unauthorized request",
+  //     },
+  //   };
+  // }
 }
 
 module.exports = UserController;

@@ -1,6 +1,7 @@
 const errMapping = require("../../helpers/userErrorDef");
 const bcrypt = require("bcrypt");
 const UserService = require("../../services/UserService");
+const { UniqueConstraintError } = require("sequelize");
 
 describe("UserService : initilization", () => {
   test("Abnormal : empry UserModel", () => {
@@ -45,10 +46,12 @@ describe("UserService : tambahUser(UserData)", () => {
 
     mockUserModel.create = function (userData) {
       return new Promise((resolve, reject) => {
-        reject({
-          name: "SequelizeUniqueConstraintError",
-          fields: { uq_username: userData.username },
-        });
+        reject(
+          new UniqueConstraintError({
+            fields: { uq_username: userData.username },
+            message: "error",
+          })
+        );
       });
     };
     const userService = new UserService(mockUserModel);
@@ -69,6 +72,30 @@ describe("UserService : tambahUser(UserData)", () => {
   // test('Abnormal : mobile already exist', async () => {
 
   // });
+
+  test("Abnormal : username already exist", async () => {
+    let reqBody = {
+      username: "jimmy",
+      firstName: "Jimmy",
+      middleName: "Feriawan",
+      mobile: "087784517748",
+      email: "feriawanjimmy@mail.com",
+      password: "123456",
+    };
+
+    mockUserModel.create = function (userData) {
+      return new Promise((resolve, reject) => {
+        reject(
+          new Error("Something error from DB")
+        );
+      });
+    };
+    const userService = new UserService(mockUserModel);
+
+    return userService
+      .tambahUser(reqBody)
+      .catch((e) => expect(e.error).toEqual(true));
+  });  
 });
 
 describe("UserService : findOneByUsernamePassword(username, password)", () => {
@@ -108,6 +135,79 @@ describe("UserService : findOneByUsernamePassword(username, password)", () => {
     );
 
     expect(findOneByUsernamePassword.error).toEqual(false);
+  });
+
+  test("Abnormal : incorrect username  not found ", async () => {
+    bcrypt.compareSync = function (plain, hashed) {
+      return false;
+    };
+
+    mockUserModel.findOne = function (objInput) {
+      return new Promise((resolve, reject) => {
+        resolve(null);
+      });
+    };
+
+    const userService = new UserService(mockUserModel);
+
+    try {
+      await userService.findOneByUsernamePassword("jimmy", "123456");
+    } catch (err) {
+      expect(err.error).toEqual(true);
+    }
+  });
+
+  test("Abnormal : incorrect password ", async () => {
+    bcrypt.compareSync = function (plain, hashed) {
+      return false;
+    };
+
+    mockUserModel.findOne = function (objInput) {
+      return new Promise((resolve, reject) => {
+        resolve({
+          dataValues: {
+            id: 2,
+            username: "jimmy",
+            firstName: "Jimmy Feriawan",
+            middleName: "Feriawan",
+            lastName: "",
+            mobile: "081212341230",
+            email: "feriawanjimmy@mail.com",
+            passwordHash:
+              "$2b$10$VmXt1xEh0rovnKe4gdGFzeoYZ2FH90WhxILpYVRyyu0IXN9IfoqgK",
+            registeredAt: new Date("2023-09-30T19:00:16.000Z"),
+            lastLogin: null,
+            intro: null,
+            profile: null,
+            emailConfirmed: "N",
+          },
+        });
+      });
+    };
+
+    const userService = new UserService(mockUserModel);
+
+    try {
+      await userService.findOneByUsernamePassword("jimmy", "123456");
+    } catch (err) {
+      expect(err.error).toEqual(true);
+    }
+  });
+
+  test("Abormal : Other database error", async () => {
+    mockUserModel.findOne = function (objInput) {
+      return new Promise((resolve, reject) => {
+        reject(new Error("Someting error"));
+      });
+    };
+
+    const userService = new UserService(mockUserModel);
+
+    try {
+      await userService.findOneByUsernamePassword("jimmy", "123456");
+    } catch (err) {
+      expect(err.error).toEqual(true);
+    }
   });
 });
 
@@ -166,6 +266,22 @@ describe("UserService : findOneByUsername(username)", () => {
     //   expect(err.error).toBe(true)
     // }
   });
+
+  test("Abnormal : Other error from database", async () => {
+    let normal = {};
+    normal.findOne = function (reqBody) {
+      return new Promise((resolve, reject) => {
+        reject(new Error("Something error"));
+      });
+    };
+    const userService = new UserService(normal);
+
+    try {
+      let hasil = await userService.findOneByUsername("jimmy");
+    } catch (err) {
+      expect(err.error).toBe(true);
+    }
+  });
 });
 
 describe("UserService : updateDetailByUsername(username, UserData)", () => {
@@ -185,6 +301,43 @@ describe("UserService : updateDetailByUsername(username, UserData)", () => {
 
     expect(updateDetailByUsername.body.error).toBe(false);
   });
+
+  test("Abnormal : username already used by other user", async () => {
+    mockUserModel.update = function (userData, objInput) {
+      return new Promise((resolve, reject) => {
+        reject({
+          name: "SequelizeUniqueConstraintError",
+          fields: { uq_username: userData.username },
+        });
+      });
+    };
+    const userService = new UserService(mockUserModel);
+    try {
+      let updateDetailByUsername = await userService.updateDetailByUsername(
+        "jimmy",
+        {}
+      );
+    } catch (err) {
+      expect(err.body.error).toBe(true);
+    }
+  });
+
+  test("Abnormal : other erro from database", async () => {
+    mockUserModel.update = function (userData, objInput) {
+      return new Promise((resolve, reject) => {
+        reject(new Error("something was error"));
+      });
+    };
+    const userService = new UserService(mockUserModel);
+    try {
+      let updateDetailByUsername = await userService.updateDetailByUsername(
+        "jimmy",
+        {}
+      );
+    } catch (err) {
+      expect(err.body.error).toBe(true);
+    }
+  });
 });
 
 describe("UserService : updateEmailConfirmed(username)", () => {
@@ -199,6 +352,23 @@ describe("UserService : updateEmailConfirmed(username)", () => {
     let updateEmailConfirmed = await userService.updateEmailConfirmed("jimmy");
 
     expect(updateEmailConfirmed.error).toBe(false);
+  });
+
+  test("Abnormal : error from DB while trying updating status", async () => {
+    mockUserModel.update = function (Userdata, objInput) {
+      return new Promise((resolve, reject) => {
+        reject(new Error("Something error"));
+      });
+    };
+    const userService = new UserService(mockUserModel);
+
+    try {
+      let updateEmailConfirmed = await userService.updateEmailConfirmed(
+        "jimmy"
+      );
+    } catch (err) {
+      expect(err.error).toBe(true);
+    }
   });
 });
 
@@ -216,15 +386,17 @@ describe("UserService : updatePassword(username, newPassword)", () => {
     expect(updatePassword.error).toBe(false);
   });
 
-  // test("Abnormal : error when updating password", async () => {
-  //   mockUserModel.update = function (Userdata, objInput) {
-  //     return new Promise((resolve, reject) => {
-  //       reject(new Error("Error"));
-  //     });
-  //   };
-  //   const userService = new UserService(mockUserModel);
-  //   let updatePassword = await userService.updatePassword("jimmy", "123456");
-
-  //   expect(updatePassword.error).toBe(false);
-  // });
+  test("Abnormal : error from DB when updating password", async () => {
+    mockUserModel.update = function (Userdata, objInput) {
+      return new Promise((resolve, reject) => {
+        reject(new Error("Error"));
+      });
+    };
+    const userService = new UserService(mockUserModel);
+    try {
+      let updatePassword = await userService.updatePassword("jimmy", "123456");
+    } catch (err) {
+      expect(err.error).toBe(true);
+    }
+  });
 });
