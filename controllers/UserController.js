@@ -9,41 +9,6 @@ class UserController {
     this.UserService = userService;
   }
 
-  // requestBodyValidation(reqBody) {
-  //   let isValidBody = true;
-  //   if (
-  //     !reqBody.username ||
-  //     !reqBody.firstName ||
-  //     !reqBody.mobile ||
-  //     !reqBody.email
-  //   ) {
-  //     isValidBody = false;
-  //   }
-
-  //   return isValidBody;
-  // }
-
-  // isValidAuthBearerHeader(req) {
-  //   if (
-  //     req?.headers &&
-  //     req?.headers.authorization &&
-  //     req?.headers.authorization.split(" ")[0] == "Bearer"
-  //   ) {
-  //     // console.log("valid header");
-  //     return true;
-  //   } else {
-  //     // console.log("invalid header");
-  //     return false;
-  //   }
-  // }
-
-  // unAuthResponse(res, respCode, msg = "Oops! something went wrong") {
-  //   res.status(respCode).send({
-  //     error: true,
-  //     message: msg,
-  //   });
-  // }
-
   signUpUser(UserService) {
     return async (req, res, next) => {
       let respData = {
@@ -139,7 +104,7 @@ class UserController {
           respData.body.message = "Berhasil login"
           respData.body.accessToken = token
         } catch (err) {
-          console.log("err => ", err)
+          // console.log("err => ", err)
           let httpStatus = err.rc == "99" ? 500 : 401;
 
           respData.httpStatus = httpStatus
@@ -179,126 +144,16 @@ class UserController {
       }
 
       res.status(respData.httpStatus).send(respData.body)
-      // UserService.findOneByUsername(username)
-      //   .then((data) => {
-      //     delete data.rc;
-
-      //     res.status(200).send(data);
-      //   })
-      //   .catch((err) => {
-      //     let httpStatus = err.rc == "99" ? 500 : 404;
-      //     delete err.rc;
-
-      //     res.status(httpStatus).send(err);
-      //   });
     };
   }
-
-  // verifyToken() {
-  //   let unAuthResponse = this.unAuthResponse;
-  //   let isValidAuthBearerHeader = this.isValidAuthBearerHeader;
-  //   return (req, res) => {
-  //     console.log(`header Authorization : ${req.headers.authorization}`);
-  //     if (!isValidAuthBearerHeader(req)) {
-  //       unAuthResponse(res, 404);
-  //     }
-
-  //     jwt.verify(
-  //       req.headers.authorization.split(" ")[1],
-  //       process.env.APP_SECRET,
-  //       (err, decode) => {
-  //         // console.log(decode)
-  //         if (err) {
-  //           let httpStatus = err.name == "TokenExpiredError" ? 403 : 400;
-  //           let httpMsg =
-  //             err.name == "TokenExpiredError"
-  //               ? "Please login first"
-  //               : "Oops! something went wrong";
-  //           console.log(err.message, err.name);
-  //           unAuthResponse(res, httpStatus, httpMsg);
-  //         } else {
-  //           res.status(200).send({
-  //             error: false,
-  //             message: "Ok",
-  //           });
-  //         }
-  //       }
-  //     );
-  //   };
-  // }
-
-  // verifyUserOwn() {
-  //   return (req, res) => {
-  //     let reqToken = req.headers.authorization.split(" ")[1];
-  //     console.log(`reqToken = ${reqToken}`);
-  //     let dataUser = jwt.verify(reqToken, process.env.APP_SECRET);
-  //     console.log(
-  //       `dataUser = ${dataUser.username} == req.params.username = ${req.params.username}`
-  //     );
-
-  //     if (dataUser.username != req.params.username) {
-  //       res.status(403).send({
-  //         error: true,
-  //         message: "Not Authorized!",
-  //       });
-
-  //       return;
-  //     }
-
-  //     res.status(200).send({ error: false, message: "Ok" });
-  //   };
-  // }
-
-  // authorize(req) {
-  //   let isValidJWT = false;
-
-  //   console.log(`header Authorization : ${req.headers.authorization}`);
-  //   // if (this.isValidAuthBearerHeader(req)) {
-  //   jwt.verify(
-  //     req.headers.authorization.split(" ")[1],
-  //     process.env.APP_SECRET,
-  //     (err, decode) => {
-  //       if (err) {
-  //         isValidJWT = false;
-  //       } else {
-  //         isValidJWT = true;
-  //       }
-  //     }
-  //   );
-  //   // } else {
-  //   //   isValidJWT = false;
-  //   // }
-
-  //   return isValidJWT;
-  // }
-
-  // authorizationOwn(req) {
-  //   let reqToken = req.headers.authorization.split(" ")[1];
-  //   console.log(`reqToken = ${reqToken}`);
-  //   let dataUser = jwt.verify(reqToken, process.env.APP_SECRET);
-  //   console.log(
-  //     `dataUser = ${dataUser.username} == req.params.username = ${req.params.username}`
-  //   );
-  //   let isValidOwner = false;
-
-  //   // if(this.authorize(req)) {
-  //   if (dataUser.username == req.params.username) {
-  //     isValidOwner = true;
-  //   } else {
-  //     isValidOwner = false;
-  //   }
-  //   // }
-
-  //   return isValidOwner;
-  // }
 
   updateUserDetail(UserService, AuthValidationHelper) {
     const authValidationHelper = AuthValidationHelper;
     let { status, body } = {
       status: 401,
       body: {
-        err: true,
-        errMsg: "Unauthorized request",
+        error: true,
+        message: "Unauthorized request",
       },
     };
 
@@ -336,25 +191,27 @@ class UserController {
 
             data.body.data = UserReqUpdate;
             status = data.httpStatusCode;
-            body = data.body;
+            body.data = data.body.data;
+            body.error = false
           }
         } catch (err) {
-          console.log("err => ", err);
+          // console.log("err => ", err);
           if (err.rc) {
             if (err.rc == "01") {
               status = 404;
-              body.errMsg = "Not found";
+              body.message = "Not found";
             }
             delete err.rc;
           } else {
             status = err.httpStatusCode;
-            body = err.body;
+            body.error = err.body.error;
+            body.message = err.body.errMsg
           }
         }
       } else {
         if (!validRequstBody) {
           status = 400;
-          body.errMsg = "Missing mandatory field";
+          body.message = "Missing mandatory field";
         }
       }
 

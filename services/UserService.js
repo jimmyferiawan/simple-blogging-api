@@ -77,7 +77,7 @@ class UserService {
               password,
               data.dataValues.passwordHash
             );
-            console.log("isCorrectPassword => ", isCorrectPassword);
+            // console.log("isCorrectPassword => ", isCorrectPassword);
             if (isCorrectPassword) {
               respData.error = false;
               // respData.errMsg = "Success";
