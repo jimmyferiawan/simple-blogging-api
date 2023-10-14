@@ -2,7 +2,7 @@ FROM node:alpine as base
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 
 RUN rm -rf node_modules && yarn install --frozen-lockfile && yarn cache clean
 
