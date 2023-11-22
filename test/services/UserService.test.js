@@ -122,7 +122,7 @@ describe("UserService : findOneByUsernamePassword(username, password)", () => {
             lastLogin: null,
             intro: null,
             profile: null,
-            emailConfirmed: "N",
+            emailConfirmed: "Y",
           },
         });
       });
@@ -179,7 +179,7 @@ describe("UserService : findOneByUsernamePassword(username, password)", () => {
             lastLogin: null,
             intro: null,
             profile: null,
-            emailConfirmed: "N",
+            emailConfirmed: "Y",
           },
         });
       });
@@ -191,6 +191,44 @@ describe("UserService : findOneByUsernamePassword(username, password)", () => {
       await userService.findOneByUsernamePassword("jimmy", "123456");
     } catch (err) {
       expect(err.error).toEqual(true);
+    }
+  });
+
+  test("Abnormal : unactivated user ", async () => {
+    bcrypt.compareSync = function (plain, hashed) {
+      return true;
+    };
+
+    mockUserModel.findOne = function (objInput) {
+      return new Promise((resolve, reject) => {
+        resolve({
+          dataValues: {
+            id: 2,
+            username: "jimmy",
+            firstName: "Jimmy Feriawan",
+            middleName: "Feriawan",
+            lastName: "",
+            mobile: "081212341230",
+            email: "feriawanjimmy@mail.com",
+            passwordHash: "$2b$10$VmXt1xEh0rovnKe4gdGFzeoYZ2FH90WhxILpYVRyyu0IXN9IfoqgK",
+            registeredAt: new Date("2023-09-30T19:00:16.000Z"),
+            lastLogin: null,
+            intro: null,
+            profile: null,
+            emailConfirmed: "N",
+          },
+        });
+      });
+    };
+
+    const userService = new UserService(mockUserModel);
+
+    try {
+      await userService.findOneByUsernamePassword("jimmy", "123456");
+    } catch (err) {
+      console.log("Abnormal : unactivated user => ", err)
+      expect(err.error).toEqual(true);
+      expect(err.rc).toEqual("10")
     }
   });
 
