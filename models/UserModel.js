@@ -56,9 +56,15 @@ const User = function (sequelizeConfig = sequelize) {
         type: DataTypes.TEXT,
       },
       emailConfirmed: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(1),
         defaultValue: "N",
       },
+      birthdate: {
+        type: DataTypes.STRING,
+        validate: {
+          is: /^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/
+        }
+      }
     },
     { tableName: "user", timestamps: false }
   );

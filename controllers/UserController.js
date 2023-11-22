@@ -34,6 +34,7 @@ class UserController {
           lastName: req.body.lastName || "",
           email: req.body.email,
           mobile: req.body.mobile,
+          birthdate: req.body.birthdate,
         };
 
         try {
@@ -48,6 +49,7 @@ class UserController {
             lastName: UserReqBody.lastName,
             email: UserReqBody.email,
             mobile: UserReqBody.mobile,
+            birthdate: UserReqBody.birthdate,
           };
           respData.status = 201;
           respData.body.error = false;
