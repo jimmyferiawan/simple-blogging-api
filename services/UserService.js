@@ -1,6 +1,8 @@
 // const { Model } = require("sequelize").Model;
 const errMapping = require("../helpers/userErrorDef");
 const bcrypt = require("bcrypt");
+const  { generateActivationLink } = require("./OtpService");
+const OtpModel = require("../models/otp");
 
 /**
  * @param {Object} UserModel Sequelize User Model
@@ -34,6 +36,7 @@ class UserService {
         .then((data) => {
           respData.error = false;
           respData.errMsg = null;
+          generateActivationLink(OtpModel(), data.dataValues.id, data.dataValues.email);
           resolve(respData);
         })
         .catch((err) => {
@@ -79,19 +82,27 @@ class UserService {
             );
             // console.log("isCorrectPassword => ", isCorrectPassword);
             if (isCorrectPassword) {
-              respData.error = false;
-              // respData.errMsg = "Success";
-              respData.rc = "00";
-              respData.data = {
-                username: data.dataValues.username,
-                firstName: data.dataValues.firstName,
-                middleName: data.dataValues.middleName,
-                lastName: data.dataValues.lastName,
-                email: data.dataValues.email,
-                mobile: data.dataValues.mobile,
-              };
+              if(data.dataValues.emailConfirmed == 'Y') {
+                respData.error = false;
+                // respData.errMsg = "Success";
+                respData.rc = "00";
+                respData.data = {
+                  username: data.dataValues.username,
+                  firstName: data.dataValues.firstName,
+                  middleName: data.dataValues.middleName,
+                  lastName: data.dataValues.lastName,
+                  email: data.dataValues.email,
+                  mobile: data.dataValues.mobile,
+                };
 
-              resolve(respData);
+                resolve(respData);
+              } else {
+                respData.error = true;
+                respData.errMsg = "Please confirm the registration on your email";//UNACTIVATED_USER;
+                respData.rc = "10";
+
+                reject(respData);
+              }
             } else {
               respData.error = true;
               respData.errMsg = WRONG_CREDENTIALS;
