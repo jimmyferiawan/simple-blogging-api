@@ -292,6 +292,56 @@ class UserService {
 
     return promise;
   }
+
+  getUserDetail(username) {
+    const respData = {
+      error: true,
+      errMsg: "Something went wrong, please try again later",
+      rc: "99",
+    }
+    
+    return new Promise((resolve, reject) => {
+      this.UserModel.findOne({
+        attributes: [
+          "username",
+          "email",
+          "firstname",
+          "middlename",
+          "lastname",
+          "intro",
+          "profile",
+          "birthdate"
+        ],
+        where: {
+          username: username,
+        },
+      })
+        .then((data) => {
+          // console.log(["UserSevice.findOneByUsername() data: ", data]);
+          if (data) {
+            respData.error = false;
+            // respData.errMsg = "Ok";
+            respData.rc = "00";
+            respData.data = data;
+
+            resolve(respData);
+          } else {
+            respData.error = true;
+            respData.errMsg = "User not found";
+            respData.rc = "01";
+
+            reject(respData);
+          }
+        })
+        .catch((err) => {
+          respData.error = true;
+          respData.errMsg = "Something went wrong, please try again later";
+          respData.rc = "99";
+
+          reject(respData);
+        })
+    });
+  }
 }
 
 module.exports = UserService;

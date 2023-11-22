@@ -145,6 +145,54 @@ class UserController {
     };
   }
 
+  userDetail(UserService, AuthValidationHelper) {
+    const authValidationHelper = AuthValidationHelper;
+    let { status, body } = {
+      status: 401,
+      body: {
+        error: true,
+        message: "Unauthorized request",
+      },
+    };
+
+    return async (req, res, next) => {
+      const username = req.params.username;
+
+      let validBearerHeader = authValidationHelper.isValidAuthBearerHeader(req);
+
+      if(validBearerHeader) {
+        try {
+          let isUsernameExist = await UserService.getUserDetail(username);
+          let validAuthorization = authValidationHelper.authorizationOwn(req);
+
+          if (validAuthorization) {
+            status = 200;
+            body.error = false;
+            body.message = "Ok";
+            body.data = isUsernameExist.data;
+          } else {
+            console.log("error unauthorized request get user detail => ", req.headers);
+            status = 401
+            body.error = true
+            body.message = "Unauthorized request"
+            delete body.data;
+          }
+        } catch (err) {
+          console.log("error general error => ", err);
+          status = 500
+          body.error = true
+          body.message = err.errMsg
+        }
+      } else {
+        console.log("error unauthorized request get user detail => ", req.headers);
+        status = 401
+        body.error = true
+        body.message = "Unauthorized request"
+      }
+      res.status(status).send(body);
+    }
+  }
+
   updateUserDetail(UserService, AuthValidationHelper) {
     const authValidationHelper = AuthValidationHelper;
     let { status, body } = {
