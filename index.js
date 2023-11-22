@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const authRouter = require("./routes/AuthRouter");
+const otpRouter = require("./routes/OtpRouter");
 const cors = require("cors");
 const { PassThrough } = require("stream");
 const { requestLogger, responseLogger } = require("./helpers/logger");
@@ -58,6 +59,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/", authRouter);
+app.use("/", otpRouter);
 
 app.use("*", function (req, res) {
   res.status(404).send({
