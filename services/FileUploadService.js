@@ -1,12 +1,14 @@
 const { generateAdditionalFileName } = require("../helpers/hashPostId");
 const multer = require("multer");
+const path = require("path");
+const { cwd } = require("process");
 // import { generateAdditionalFileName } from '../helpers/hashPostId'
-
+const workingDir = path.join(cwd(), "assets", "images")
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // console.log(`destination : ${process.env.WORKING_DIR}\\assets\\images`);
+    // console.log(`destination : ${workingDir}`);
     // console.log(`filesize : ${file}`);
-    cb(null, `${process.env.WORKING_DIR}\\assets\\images`);
+    cb(null, workingDir);
   },
   filename: (req, file, cb) => {
     // console.log(`filename : ${file.filename} | mimetype : ${file.mimetype}`);
