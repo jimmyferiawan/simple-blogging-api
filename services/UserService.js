@@ -311,6 +311,7 @@ class UserService {
         attributes: [
           "username",
           "email",
+          "mobile",
           "firstname",
           // "middlename",
           // "lastname",
