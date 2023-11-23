@@ -224,7 +224,7 @@ class UserService {
             respData.body.errMsg =
               "Some error occured, please try again later.";
           }
-          // console.log(["update data error => ", err]);
+          console.log(["update data error => ", err]);
 
           reject(respData);
         });
@@ -312,7 +312,7 @@ class UserService {
           "username",
           "email",
           "mobile",
-          "firstname",
+          "firstName",
           // "middlename",
           // "lastname",
           "intro",
