@@ -13,5 +13,9 @@ const generateActivation = new Sqids({
   alphabet: "BJ0bpMh7jaRIQgKZwPodx8zVN56svEiAWUCDuScOt2XYnFrk9qTeGy1lmL3H4f",
   minLength: 125,
 });
+const generateAdditionalFileName = new Sqids({
+  alphabet: "XBfRswe7coHzEa1DQ95jVxbI80gkC4hGNn3UmYFdiPTAOMWvlSpyLr-q_2uKtJZ6",
+  minLength: 16,
+});
 
-module.exports = { generatePostId, generatePostSlugAdd, generateActivation };
+module.exports = { generatePostId, generatePostSlugAdd, generateActivation, generateAdditionalFileName };

@@ -5,8 +5,14 @@ const otpRouter = require("./routes/OtpRouter");
 const cors = require("cors");
 const { PassThrough } = require("stream");
 const { requestLogger, responseLogger } = require("./helpers/logger");
+const fileUploadRouter = require("./routes/FileUploadRouter")
+// const multer = require("multer")
+// const upload  = require("./services/FileUploadService")
+// uploadFile = upload.single("file")
 // require("dotenv").config
 let dotenv = require('dotenv').config()
+process.env.WORKING_DIR = __dirname
+// console.log(process.env)
 
 const corsOption = {
   origin: ["http://localhost:3000", "http://localhost:5000"],
@@ -63,6 +69,7 @@ app.use((req, res, next) => {
 
 app.use("/", authRouter);
 app.use("/", otpRouter);
+app.use("/file/upload", fileUploadRouter);
 
 app.use("*", function (req, res) {
   res.status(404).send({
