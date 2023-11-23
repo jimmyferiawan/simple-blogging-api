@@ -30,8 +30,8 @@ class UserController {
           username: req.body.username,
           passwordHash: bcrypt.hashSync(req.body.password, 10),
           firstName: req.body.firstName,
-          middleName: req.body.middleName || "",
-          lastName: req.body.lastName || "",
+          // middleName: req.body.middleName || "",
+          // lastName: req.body.lastName || "",
           email: req.body.email,
           mobile: req.body.mobile,
           birthdate: req.body.birthdate,
@@ -45,8 +45,8 @@ class UserController {
           const dataUser = {
             username: UserReqBody.username,
             firstName: UserReqBody.firstName,
-            middleName: UserReqBody.middleName,
-            lastName: UserReqBody.lastName,
+            // middleName: UserReqBody.middleName,
+            // lastName: UserReqBody.lastName,
             email: UserReqBody.email,
             mobile: UserReqBody.mobile,
             birthdate: UserReqBody.birthdate,
@@ -210,8 +210,8 @@ class UserController {
       let UserReqUpdate = {
         username: "",
         firstName: "",
-        middleName: "",
-        lastName: "",
+        // middleName: "",
+        // lastName: "",
         mobile: "",
         email: "",
       };
@@ -227,8 +227,8 @@ class UserController {
             if (validAuthorization) {
               UserReqUpdate.username = req.body.username;
               UserReqUpdate.firstName = req.body.firstName;
-              UserReqUpdate.middleName = req.body.middleName;
-              UserReqUpdate.lastName = req.body.lastName;
+              // UserReqUpdate.middleName = req.body.middleName;
+              // UserReqUpdate.lastName = req.body.lastName;
               UserReqUpdate.mobile = req.body.mobile;
               UserReqUpdate.email = req.body.email;
               let data = await UserService.updateDetailByUsername(

@@ -426,7 +426,7 @@ describe("UserController", () => {
       body: {
         username: "jimmy",
         firstName: "Jimmy Feriawan",
-        middleName: "Feriawan",
+        // middleName: "Feriawan",
         mobile: "081212341230",
         email: "feriawanjimmy@mail.com",
       },

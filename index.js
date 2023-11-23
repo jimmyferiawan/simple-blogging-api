@@ -5,12 +5,15 @@ const otpRouter = require("./routes/OtpRouter");
 const cors = require("cors");
 const { PassThrough } = require("stream");
 const { requestLogger, responseLogger } = require("./helpers/logger");
+// require("dotenv").config
+let dotenv = require('dotenv').config()
 
 const corsOption = {
   origin: ["http://localhost:3000", "http://localhost:5000"],
 };
 
 const PORT = process.env.APP_PORT || 9003;
+
 
 app.disable("x-powered-by");
 app.use(cors());

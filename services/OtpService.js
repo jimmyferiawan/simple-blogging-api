@@ -15,7 +15,7 @@ const generateActivationLink = (otpModel = OtpModel(), userId, userEmail) => {
         userEmail: userEmail,
       })
       .then((data) => {
-        console.log("generateActivationLink() | berhasil | ", data);
+        // console.log("generateActivationLink() | berhasil | ", data);
         sendActivationMail(userEmail, data.dataValues.otpValue);
         resolve({
           error: false,

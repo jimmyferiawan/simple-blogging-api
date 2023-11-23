@@ -4,8 +4,11 @@ const UserController = require('../controllers/UserController')
 const UserService = require('../services/UserService')
 const AuthValidationHelper = require('../helpers/authValidationHelper')
 const authValidationHelper = new AuthValidationHelper()
+const  { generateActivationLink } = require("../services/OtpService");
 
-const userService = new UserService(UserModel())
+const SMTPHelper = {generateActivationLink: generateActivationLink}
+
+const userService = new UserService(UserModel(), SMTPHelper)
 const userController = new UserController(userService)
 
 authRouter.post('/signup', userController.signUpUser(userService))

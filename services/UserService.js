@@ -1,7 +1,7 @@
 // const { Model } = require("sequelize").Model;
 const errMapping = require("../helpers/userErrorDef");
 const bcrypt = require("bcrypt");
-const  { generateActivationLink } = require("./OtpService");
+// const  { generateActivationLink } = require("./OtpService");
 const OtpModel = require("../models/otp");
 
 /**
@@ -9,13 +9,15 @@ const OtpModel = require("../models/otp");
  */
 class UserService {
   UserModel;
+  SMTPHelper;
 
-  constructor(UserModel) {
+  constructor(UserModel, SMTPHelper) {
     if (UserModel == undefined || UserModel == null) {
       throw new Error("Please specify the correct UserModel");
     }
 
     this.UserModel = UserModel;
+    this.SMTPHelper = SMTPHelper;
   }
 
   /**
@@ -29,17 +31,21 @@ class UserService {
       errMsg: null,
     };
     let userModel = this.UserModel;
+    let activationLinkSender = this.SMTPHelper.generateActivationLink;
     const promise = new Promise((resolve, reject) => {
       // console.log(["typeof userModel => ", typeof userModel]);
       userModel
         .create(userData)
         .then((data) => {
+          // console.log("data => ", data)
           respData.error = false;
           respData.errMsg = null;
-          generateActivationLink(OtpModel(), data.dataValues.id, data.dataValues.email);
+          activationLinkSender(OtpModel(), data.dataValues.id, data.dataValues.email);
+          // generateActivationLink(OtpModel(), data.dataValues.id, data.dataValues.email);
           resolve(respData);
         })
         .catch((err) => {
+          // console.log("error tambahUser()", err)
           respData.error = true;
           err.name == "SequelizeUniqueConstraintError"
             ? // console.log("err.fields => ", err.fields)
@@ -89,8 +95,8 @@ class UserService {
                 respData.data = {
                   username: data.dataValues.username,
                   firstName: data.dataValues.firstName,
-                  middleName: data.dataValues.middleName,
-                  lastName: data.dataValues.lastName,
+                  // middleName: data.dataValues.middleName,
+                  // lastName: data.dataValues.lastName,
                   email: data.dataValues.email,
                   mobile: data.dataValues.mobile,
                 };
@@ -146,8 +152,8 @@ class UserService {
         attributes: [
           "username",
           "firstname",
-          "middlename",
-          "lastname",
+          // "middlename",
+          // "lastname",
           "intro",
           "profile",
         ],
@@ -306,8 +312,8 @@ class UserService {
           "username",
           "email",
           "firstname",
-          "middlename",
-          "lastname",
+          // "middlename",
+          // "lastname",
           "intro",
           "profile",
           "birthdate"

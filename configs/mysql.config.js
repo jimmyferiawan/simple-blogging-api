@@ -6,8 +6,8 @@ const mysqlConnection = new Sequelize(
   process.env.DB_USER,
   process.env.DB_PASS,
   {
-    host: process.env.DB_HOST || "localhsot",
-    port: process.env.DB_PORT || 3306,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT || "mysql",
     logging: (...msg) => console.log("Database query : ", msg[0]),
     logQueryParameters: true,

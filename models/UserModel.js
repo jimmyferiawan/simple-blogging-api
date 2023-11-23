@@ -19,17 +19,17 @@ const User = function (sequelizeConfig = sequelize) {
         },
       },
       firstName: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING(100),
         allowNull: false,
       },
-      middleName: {
-        type: DataTypes.STRING(20),
-        allowNull: true,
-      },
-      lastName: {
-        type: DataTypes.STRING(20),
-        allowNull: true,
-      },
+      // middleName: {
+      //   type: DataTypes.STRING(20),
+      //   allowNull: true,
+      // },
+      // lastName: {
+      //   type: DataTypes.STRING(20),
+      //   allowNull: true,
+      // },
       mobile: {
         type: DataTypes.STRING(15),
         allowNull: false,

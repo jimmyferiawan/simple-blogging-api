@@ -10,25 +10,45 @@ describe("UserService : initilization", () => {
 });
 
 describe("UserService : tambahUser(UserData)", () => {
-  let mockUserModel = {};
+  let mockUserModel = {
+    create : function (userData) {
+      return new Promise((resolve, reject) => {
+        resolve({
+          dataValues: {
+            registeredAt: "2023-11-22T07:25:05.354Z",
+            emailConfirmed: 'N',
+            id: 13,
+            username: 'dega',
+            passwordHash: '$2b$10$7wF0Ctr3sVfwqYzSzqdeduSmojb6YCGEJbRX5W2u3jAZXVVAH/Km.',
+            firstName: 'Dega',
+            email: 'feriawanjimmy@gmail.com',
+            mobile: '087784517755',
+            birthdate: undefined
+          }
+        });
+      });
+    }
+  };
 
   test("Normal : create new user", async () => {
     let reqBody = {
       username: "jimmy",
       firstName: "Jimmy",
-      middleName: "Feriawan",
+      // middleName: "Feriawan",
       mobile: "087784517748",
       email: "feriawanjimmy@mail.com",
       password: "123456",
     };
 
-    mockUserModel.create = function (userData) {
-      return new Promise((resolve, reject) => {
-        resolve([0]);
-      });
-    };
-
-    const userService = new UserService(mockUserModel);
+    // mockUserModel.create = function (userData) {
+    //   return new Promise((resolve, reject) => {
+    //     resolve([0]);
+    //   });
+    // };
+    let generateActivationLink = function() {
+      console.log("sending activation email");
+    }
+    const userService = new UserService(mockUserModel, {generateActivationLink: generateActivationLink});
     let tambahUser = await userService.tambahUser(reqBody);
 
     expect(tambahUser.error).toBe(false);
@@ -38,7 +58,7 @@ describe("UserService : tambahUser(UserData)", () => {
     let reqBody = {
       username: "jimmy",
       firstName: "Jimmy",
-      middleName: "Feriawan",
+      // middleName: "Feriawan",
       mobile: "087784517748",
       email: "feriawanjimmy@mail.com",
       password: "123456",
@@ -54,7 +74,10 @@ describe("UserService : tambahUser(UserData)", () => {
         );
       });
     };
-    const userService = new UserService(mockUserModel);
+    let generateActivationLink = function() {
+      console.log("sending activation email");
+    }
+    const userService = new UserService(mockUserModel, {generateActivationLink: generateActivationLink});
 
     return userService
       .tambahUser(reqBody)
@@ -77,7 +100,7 @@ describe("UserService : tambahUser(UserData)", () => {
     let reqBody = {
       username: "jimmy",
       firstName: "Jimmy",
-      middleName: "Feriawan",
+      // middleName: "Feriawan",
       mobile: "087784517748",
       email: "feriawanjimmy@mail.com",
       password: "123456",
@@ -90,7 +113,10 @@ describe("UserService : tambahUser(UserData)", () => {
         );
       });
     };
-    const userService = new UserService(mockUserModel);
+    let generateActivationLink = function() {
+      console.log("sending activation email");
+    }
+    const userService = new UserService(mockUserModel, {generateActivationLink: generateActivationLink});
 
     return userService
       .tambahUser(reqBody)
@@ -112,8 +138,8 @@ describe("UserService : findOneByUsernamePassword(username, password)", () => {
             id: 2,
             username: "jimmy",
             firstName: "Jimmy Feriawan",
-            middleName: "Feriawan",
-            lastName: "",
+            // middleName: "Feriawan",
+            // lastName: "",
             mobile: "081212341230",
             email: "feriawanjimmy@mail.com",
             passwordHash:
@@ -206,8 +232,8 @@ describe("UserService : findOneByUsernamePassword(username, password)", () => {
             id: 2,
             username: "jimmy",
             firstName: "Jimmy Feriawan",
-            middleName: "Feriawan",
-            lastName: "",
+            // middleName: "Feriawan",
+            // lastName: "",
             mobile: "081212341230",
             email: "feriawanjimmy@mail.com",
             passwordHash: "$2b$10$VmXt1xEh0rovnKe4gdGFzeoYZ2FH90WhxILpYVRyyu0IXN9IfoqgK",
