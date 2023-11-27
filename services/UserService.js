@@ -151,7 +151,7 @@ class UserService {
       this.UserModel.findOne({
         attributes: [
           "username",
-          "firstname",
+          "firstName",
           // "middlename",
           // "lastname",
           "intro",

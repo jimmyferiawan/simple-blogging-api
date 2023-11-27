@@ -214,6 +214,8 @@ class UserController {
         // lastName: "",
         mobile: "",
         email: "",
+        birthdate: "",
+        intro: "",
       };
       let validBearerHeader = authValidationHelper.isValidAuthBearerHeader(req);
       let validRequstBody = authValidationHelper.authRequestBodyValidation(req);
@@ -231,6 +233,8 @@ class UserController {
               // UserReqUpdate.lastName = req.body.lastName;
               UserReqUpdate.mobile = req.body.mobile;
               UserReqUpdate.email = req.body.email;
+              UserReqUpdate.birthdate = req.body.birthdate;
+              UserReqUpdate.intro = req.body.intro;
               let data = await UserService.updateDetailByUsername(
                 username,
                 UserReqUpdate
