@@ -254,6 +254,11 @@ class UserController {
             }
           } catch (err) {
             console.log("err => ", err);
+            body = {
+              error: true,
+              message: "Unauthorized request",
+            }
+            status = 401;
           }
         } else {
           body.message = "missing mandatory field"
