@@ -240,29 +240,20 @@ class UserController {
                 UserReqUpdate
               );
 
-              data.body.data = UserReqUpdate;
               status = data.httpStatusCode;
-              body.data = data.body.data;
-              body.message = "Berhasil update data";
-              body.error = false;
+              body.error = data.body.error;
+              if(data.httpStatusCode == 200) {
+                // data.body.data = UserReqUpdate;
+                body.data = UserReqUpdate;
+                body.message = "Ok.";
+              } else {
+                body.data = null
+                body.message = data.body.errMsg
+              }
+              console.log("data => ", {body, status})
             }
           } catch (err) {
-            // console.log("err => ", err);
-            if (err.rc) {
-              if (err.rc == "01") {
-                status = 404;
-                body.message = "Not found";
-              }
-              if (err.rc == "99") {
-                status = 500;
-                body.message = err.errMsg;
-              }
-              delete err.rc;
-            } else {
-              status = err.httpStatusCode;
-              body.error = err.body.error;
-              body.message = err.body.errMsg;
-            }
+            console.log("err => ", err);
           }
         } else {
           body.message = "missing mandatory field"
