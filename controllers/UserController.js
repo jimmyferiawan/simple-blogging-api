@@ -261,6 +261,7 @@ class UserController {
             status = 401;
           }
         } else {
+          body.error = true
           body.message = "missing mandatory field"
           status = 400
         }
