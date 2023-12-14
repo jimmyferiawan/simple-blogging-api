@@ -91,7 +91,7 @@ const generateForgetPasswordOtp = (otpModel = OtpModel, userEmail, id) => {
       })
       .then((data) => {
         // console.log("generateForgetPasswordOtp() | berhasil | ", data.dataValues);
-        // sendForgetPasswordMail(userEmail, data.dataValues.otpValue); // TODO : uncomment this line to send email on production
+        sendForgetPasswordMail(userEmail, data.dataValues.otpValue); // TODO : uncomment this line to send email on production
         resolve({
           status: 200,
           body: {
