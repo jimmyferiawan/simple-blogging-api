@@ -1,5 +1,8 @@
+const { emailValidator } = require("../helpers/masking");
+const { generateForgetPasswordOtp, validateOtp } = require("../services/OtpService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const otpModel = require("../models/otp")();
 
 class UserController {
   UserService = null;
@@ -293,6 +296,121 @@ class UserController {
   //     },
   //   };
   // }
+
+  verifyForgetPasswordData(UserService) {
+    let { status, body } = {
+      status: 401,
+      body: {
+        error: true,
+        message: "Unauthorized request",
+      },
+    };
+
+    return async (req, res, next) => {
+      const usernameOrEmailOrPhone = req.params.usernameOrEmailOrPhone;
+
+      let dataQuery = {
+        status: 500,
+        body: {}
+      };
+
+      try {
+        dataQuery = await UserService.checkForgetPasswordData(usernameOrEmailOrPhone);
+        console.log("Success verifyForgetPasswordData => ", dataQuery)
+        delete dataQuery.body.data;
+      } catch (error) {
+        console.log("Error verifyForgetPasswordData => ", error)
+        dataQuery = error
+      }
+
+      res.status(dataQuery.status).send(dataQuery.body);
+    }
+  }
+
+  sendForgetPasswordToken(UserService, OtpModel) {
+    const otpModel = OtpModel;
+    let { status, body } = {
+      status: 401,
+      body: {
+        error: true,
+        message: "Unauthorized request",
+      },
+    };
+
+    return async (req, res, next) => {
+      const usernameOrEmailOrPhone = req.params.usernameOrEmailOrPhone;
+
+      let dataQuery = {
+        status: 500,
+        body: {}
+      };
+
+      let sendToken = {
+        status: 500,
+        body: {
+          error: true,
+          message: "",
+        }
+      }
+
+      try {
+        dataQuery = await UserService.checkForgetPasswordData(usernameOrEmailOrPhone);
+        console.log("Success verifyForgetPasswordData => ", dataQuery)
+        const sendMail = await generateForgetPasswordOtp(otpModel, dataQuery.body.data.email, dataQuery.body.data.id);
+        console.log("Success generateForgetPasswordOtp => ", sendMail)
+        sendToken = sendMail;
+      } catch (error) {
+        console.log("Error verifyForgetPasswordData => ", error)
+        sendToken = error
+      }
+
+      res.status(sendToken.status).send(sendToken.body);
+    }
+  }
+
+  resetPassword(UserService, OtpModel = otpModel) {
+    let { status, body } = {
+      status: 401,
+      body: {
+        error: true,
+        message: "Unauthorized request",
+      },
+    };
+    
+    return async (req, res, next) => {
+      const email = req.body.email;
+      const newPassword = req.body.newPassword;
+      const forgetPasswordToken = req.body.token;
+
+      if(email && newPassword && forgetPasswordToken) {
+        if(newPassword.length >= 6) {
+        // if(emailValidator(email) && newPassword.length >= 6) {
+          try {
+            let dataQuery = await UserService.checkForgetPasswordData(email);
+            await validateOtp(otpModel, dataQuery.body.data.email, forgetPasswordToken);
+            await this.UserService.forgetPasswordSetNewPassword(dataQuery.body.data.email, bcrypt.hashSync(newPassword, 10));
+            status = 200;
+            body.error = false;
+            body.message = "Ok";
+          } catch (error) {
+            console.log(error)
+            status = error.status
+            body = error.body
+          }
+        } else {
+          status = 400
+          body.error = true;
+          body.message = "Missing Request requirement"
+        }
+      } else {
+        status = 400
+        body.error = true;
+        body.message = "Missing Request field";
+      }
+
+      res.status(status).send(body);
+    }
+  }
 }
 
 module.exports = UserController;

@@ -17,5 +17,8 @@ const generateAdditionalFileName = new Sqids({
   alphabet: "XBfRswe7coHzEa1DQ95jVxbI80gkC4hGNn3UmYFdiPTAOMWvlSpyLr-q_2uKtJZ6",
   minLength: 16,
 });
-
-module.exports = { generatePostId, generatePostSlugAdd, generateActivation, generateAdditionalFileName };
+const generateForgetPasswordToken = new Sqids({
+  alphabet: "-Dgw4XlVvsUyqMeWbTamNcC8LYdrR0EQO953hoHp7xFGBfzikI1SPnjA_6uKJtZ2",
+  minLength: 20,
+});
+module.exports = { generatePostId, generatePostSlugAdd, generateActivation, generateAdditionalFileName, generateForgetPasswordToken };

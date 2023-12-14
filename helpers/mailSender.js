@@ -41,4 +41,10 @@ const sendActivationMail = async (emailDestination, aktivationUri) => {
   await sendMail(emailDestination, emailSubject, emailBody);
 };
 
-module.exports = { sendOtpMail, sendActivationMail };
+const sendForgetPasswordMail = async (emailDestination, resetPasswordToken) => {
+  let emailBody = `<b>Berikut kode untuk me-reset password akun Anda : ${resetPasswordToken}</b>`;
+  const emailSubject = "Forget Password";
+  await sendMail(emailDestination, emailSubject, emailBody);
+};
+
+module.exports = { sendOtpMail, sendActivationMail, sendForgetPasswordMail };

@@ -35,7 +35,18 @@ const OtpModel = function (sequelizeConfig = sequelize) {
         type: DataTypes.STRING(150),
         allowNull: false,
         field: "otp_value",
-      }
+      },
+      expiredDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        field: "expired_date",
+      },
+      isUsed: {
+        type: DataTypes.STRING(1),
+        allowNull: false,
+        field: "is_used",
+        defaultValue: "N",
+      },
     },
     {tableName: "otp", timestamps: false}
   );

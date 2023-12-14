@@ -3,6 +3,8 @@ const errMapping = require("../helpers/userErrorDef");
 const bcrypt = require("bcrypt");
 // const  { generateActivationLink } = require("./OtpService");
 const OtpModel = require("../models/otp");
+const { Op } = require("sequelize");
+const User = require("../models/UserModel")();
 
 /**
  * @param {Object} UserModel Sequelize User Model
@@ -11,7 +13,7 @@ class UserService {
   UserModel;
   SMTPHelper;
 
-  constructor(UserModel, SMTPHelper) {
+  constructor(UserModel = User, SMTPHelper) {
     if (UserModel == undefined || UserModel == null) {
       throw new Error("Please specify the correct UserModel");
     }
@@ -347,6 +349,115 @@ class UserService {
 
           reject(respData);
         })
+    });
+  }
+
+  checkForgetPasswordData(usernameOrEmailOrPhone) {
+    let respData = {
+      error: true,
+      message: "",
+    }
+
+    return new Promise((resolve, reject) => {
+      this.UserModel.findOne({
+        attributes: [
+          "id",
+          "username",
+          "firstName",
+          "email",
+          "mobile"
+        ],
+        where: {
+          [Op.or]: [
+            {username: usernameOrEmailOrPhone},
+            {email: usernameOrEmailOrPhone},
+            {mobile: usernameOrEmailOrPhone},
+          ]
+        },
+      })
+      .then((data) => {
+        if(data) {
+          respData.error = false;
+          respData.message = "Ok";
+          respData.data = data.dataValues;
+
+          resolve({status: 200, body: respData});
+        } else {
+          respData.error = true;
+          respData.message = "Not found!";
+
+          reject({status: 404, body: respData})
+        }
+      })
+      .catch((err) => {
+        console.log("error => ", err)
+        respData.error = true;
+        respData.message = "Something went wrong!";
+
+        reject({status: 500, body: respData})
+      })
+    })
+  }
+
+  sendForgetPasswordtoken(email) {
+    let checkUser = {
+      status: 500,
+      body: {
+        error: true,
+        message: "Something went wrong!",
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      this.checkForgetPasswordData(email)
+        .then((data) => {
+          // console.log(data);
+          if(data) {
+            let email = data.data.email;
+            let id = data.data.id;
+            checkUser.status = 200;
+            checkUser.body.error = false;
+            checkUser.body.message = "Ok";
+            checkUser.body.data = {id, email};
+
+            resolve(checkUser);
+          } else {
+            checkUser.status = 404;
+            checkUser.body.error = true;
+            checkUser.body.message = "Not found";
+
+            reject(checkUser);
+          }
+        })
+        .catch((err) => {
+
+          checkUser.status = 500;
+          checkUser.body.error = true;
+          checkUser.body.message = "Something went wrong";
+
+          reject(checkUser);
+        })
+    });
+  }
+
+  forgetPasswordSetNewPassword(email, newPassword) {
+
+    return new Promise((resolve, reject) => {
+      this.UserModel.update({passwordHash: newPassword}, {
+        where: {
+          email: email
+        }
+      })
+        .then((data) => {
+          // console.log("success")
+          if(data) {
+            data[0] == 1 ? resolve("Ok") : reject("Failed")
+          }
+        })
+        .catch((err) => {
+          // console.log("failed")
+          reject(err)
+        });
     });
   }
 }

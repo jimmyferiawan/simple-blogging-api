@@ -28,9 +28,37 @@ CREATE TABLE IF NOT EXISTS `category` (
   CONSTRAINT `fk_category_parent` FOREIGN KEY (`parentId`) REFERENCES `category` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.category: ~0 rows (approximately)
-/*!40000 ALTER TABLE `category` DISABLE KEYS */;
-/*!40000 ALTER TABLE `category` ENABLE KEYS */;
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table blog.otp
+CREATE TABLE IF NOT EXISTS `otp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `otp_category` varchar(50) NOT NULL,
+  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_date` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_email` varchar(50) NOT NULL,
+  `otp_value` varchar(150) NOT NULL,
+  `expired_date` datetime DEFAULT NULL,
+  `is_used` varchar(1) NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`id`),
+  KEY `FK_user_id` (`user_email`),
+  KEY `FK_otp_category` (`otp_category`),
+  CONSTRAINT `FK_otp_category` FOREIGN KEY (`otp_category`) REFERENCES `otp_category` (`category_name`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `FK_user_id` FOREIGN KEY (`user_email`) REFERENCES `user` (`email`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+
+-- Dumping structure for table blog.otp_category
+CREATE TABLE IF NOT EXISTS `otp_category` (
+  `category_name` varchar(50) NOT NULL,
+  `keterangan` varchar(255) NOT NULL,
+  PRIMARY KEY (`category_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.post
@@ -55,9 +83,7 @@ CREATE TABLE IF NOT EXISTS `post` (
   CONSTRAINT `fk_post_user` FOREIGN KEY (`authorId`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.post: ~1 rows (approximately)
-/*!40000 ALTER TABLE `post` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.post_category
@@ -71,9 +97,7 @@ CREATE TABLE IF NOT EXISTS `post_category` (
   CONSTRAINT `fk_pc_post` FOREIGN KEY (`postId`) REFERENCES `post` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.post_category: ~0 rows (approximately)
-/*!40000 ALTER TABLE `post_category` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post_category` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.post_comment
@@ -93,9 +117,7 @@ CREATE TABLE IF NOT EXISTS `post_comment` (
   CONSTRAINT `fk_comment_post` FOREIGN KEY (`postId`) REFERENCES `post` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.post_comment: ~0 rows (approximately)
-/*!40000 ALTER TABLE `post_comment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post_comment` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.post_meta
@@ -110,9 +132,7 @@ CREATE TABLE IF NOT EXISTS `post_meta` (
   CONSTRAINT `fk_meta_post` FOREIGN KEY (`postId`) REFERENCES `post` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.post_meta: ~0 rows (approximately)
-/*!40000 ALTER TABLE `post_meta` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post_meta` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.post_tag
@@ -126,9 +146,7 @@ CREATE TABLE IF NOT EXISTS `post_tag` (
   CONSTRAINT `fk_pt_tag` FOREIGN KEY (`tagId`) REFERENCES `tag` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.post_tag: ~0 rows (approximately)
-/*!40000 ALTER TABLE `post_tag` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post_tag` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.tag
@@ -141,9 +159,7 @@ CREATE TABLE IF NOT EXISTS `tag` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.tag: ~0 rows (approximately)
-/*!40000 ALTER TABLE `tag` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tag` ENABLE KEYS */;
+-- Data exporting was unselected.
 
 
 -- Dumping structure for table blog.user
@@ -161,18 +177,15 @@ CREATE TABLE IF NOT EXISTS `user` (
   `profile` text DEFAULT NULL,
   `username` varchar(30) DEFAULT NULL,
   `emailConfirmed` varchar(1) DEFAULT 'N',
+  `birthdate` varchar(12) DEFAULT NULL,
+  `blocked` varchar(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_mobile` (`mobile`),
   UNIQUE KEY `uq_email` (`email`),
   UNIQUE KEY `uq_username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table blog.user: ~0 rows (approximately)
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` (`id`, `firstName`, `middleName`, `lastName`, `mobile`, `email`, `passwordHash`, `registeredAt`, `lastLogin`, `intro`, `profile`, `username`, `emailConfirmed`) VALUES
-	(2, 'Jimmy', 'Feriawan', '', '087784517748', 'feriawanjimmy@mail.com', '$2b$10$p8Qeld9LWAFVLO9.t1Y1QuVdCmRgsN2iuHATA9E8p0ykQAabIWXc.', '2023-11-13 09:02:11', NULL, 'Ini Bio profile', NULL, 'jimmy', 'N'),
-	(3, 'Dega', 'Devenda', '', '087784517749', 'devenda@test.mail', '$2b$10$SzwFBVEYEPJFp0hZ9fuNDeYtybu2JdyvxKuBWWEHCaohF8W.lhj7i', '2023-11-13 09:45:51', NULL, 'Ini bio profile', NULL, 'devenda', 'N');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+-- Data exporting was unselected.
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
