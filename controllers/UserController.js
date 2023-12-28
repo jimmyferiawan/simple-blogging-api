@@ -143,7 +143,7 @@ class UserController {
         respData.httpStatus = httpStatusCode;
         respData.body.message = err.errMsg;
       }
-
+      res.setHeader('content-type', 'application/json; charset=utf-8')
       res.status(respData.httpStatus).send(respData.body);
     };
   }
