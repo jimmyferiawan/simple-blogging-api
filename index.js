@@ -5,7 +5,8 @@ const otpRouter = require("./routes/OtpRouter");
 const cors = require("cors");
 const { PassThrough } = require("stream");
 const { requestLogger, responseLogger } = require("./helpers/logger");
-const fileUploadRouter = require("./routes/FileUploadRouter")
+const fileUploadRouter = require("./routes/FileUploadRouter");
+const path = require("path");
 // const multer = require("multer")
 // const upload  = require("./services/FileUploadService")
 // uploadFile = upload.single("file")
@@ -22,6 +23,7 @@ const PORT = process.env.APP_PORT || 9003;
 
 
 app.disable("x-powered-by");
+app.disable('etag');
 app.use(cors());
 app.use(express.json());
 app.use(
@@ -60,13 +62,14 @@ app.use((req, res, next) => {
     const logData = {
       status: res.statusCode,
       headers: headersResp,
-      body: bodyResp,
+      body: new RegExp("/static/*/+[a-zA-Z0-9]").test(req.originalUrl) ? req.originalUrl : bodyResp,
     };
     responseLogger(logData);
   });
   next();
 });
 
+app.use("/static/images", express.static(path.join(__dirname, 'assets/images')))
 app.use("/", authRouter);
 app.use("/", otpRouter);
 app.use("/file/upload", fileUploadRouter);
